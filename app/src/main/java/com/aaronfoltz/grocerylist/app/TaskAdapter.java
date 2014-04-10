@@ -15,7 +15,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     private List<Task> mTasks;
 
     public TaskAdapter(Context context, List<Task> objects) {
-        super(context, R.layout.task_row_item, objects);
+        super(context, R.layout.row_item, objects);
         this.mContext = context;
         this.mTasks = objects;
     }
@@ -23,7 +23,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     public View getView(int position, View convertView, ViewGroup parent){
         if(convertView == null){
             LayoutInflater mLayoutInflater = LayoutInflater.from(mContext);
-            convertView = mLayoutInflater.inflate(R.layout.task_row_item, null);
+            convertView = mLayoutInflater.inflate(R.layout.row_item, null);
         }
 
         Task task = mTasks.get(position);
