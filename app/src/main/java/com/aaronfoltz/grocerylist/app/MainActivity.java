@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -37,7 +38,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private static final NumberFormat formatter = NumberFormat.getCurrencyInstance();
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -69,7 +71,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu)
+    {
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -77,19 +80,23 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_settings)
+        {
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void createTask(final View v) {
-        if (mTaskInput.getText() != null && mTaskInput.getText().length() > 0){
+    public void createTask(final View v)
+    {
+        if (mTaskInput.getText() != null && mTaskInput.getText().length() > 0)
+        {
             Task t = new Task();
             t.setDescription(mTaskInput.getText().toString());
             t.setCompleted(false);
@@ -99,13 +106,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         }
     }
 
-    public void updateData(){
+    public void updateData()
+    {
         ParseQuery<Task> query = ParseQuery.getQuery(Task.class);
-        query.findInBackground(new FindCallback<Task>() {
+        query.findInBackground(new FindCallback<Task>()
+        {
 
             @Override
-            public void done(final List<Task> tasks, final ParseException e) {
-                if(tasks != null){
+            public void done(final List<Task> tasks, final ParseException e)
+            {
+                if (tasks != null)
+                {
                     mAdapter.clear();
                     mAdapter.addAll(tasks);
                 }
@@ -114,41 +125,96 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l) {
-        Task task = mAdapter.getItem(i);
-        TextView taskDescription = (TextView) view.findViewById(R.id.task_description);
+    public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l)
+    {
+        final Task task = mAdapter.getItem(i);
 
-        // Show the alert dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title")
-               .setCancelable(true)
-               .setPositiveButton("Add", new DialogInterface.OnClickListener()
-               {
-
-                   @Override
-                   public void onClick(final DialogInterface dialog, final int id)
-                   {
-                   }
-               });
-
-        builder.setView(getLayoutInflater().inflate(R.layout.popup, null));
-
-        final AlertDialog alert = builder.create();
-        alert.show();
-
-        task.setCompleted(!task.isCompleted());
-
-        if(task.isCompleted()){
-            taskDescription.setPaintFlags(taskDescription.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        }else{
-            taskDescription.setPaintFlags(taskDescription.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        // If already completed, just mark it as not completed
+        if (task.isCompleted())
+        {
+            handleTaskState(view, task);
         }
+        else
+        {
+            // Not already completed, show the dialog
+            // Show the alert dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Enter Price")
+                   .setCancelable(true)
+                   .setPositiveButton("Add", new DialogInterface.OnClickListener()
+                   {
 
-        task.saveEventually();
+                       @Override
+                       public void onClick(final DialogInterface dialog, final int id)
+                       {
+
+                           handleTaskState(view, task);
+                       }
+                   })
+                   .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                   {
+
+                       @Override
+                       public void onClick(final DialogInterface dialog, final int id)
+                       {
+
+                           dialog.cancel();
+                       }
+                   });
+
+            View alertView = getLayoutInflater().inflate(R.layout.popup, null);
+            builder.setView(alertView);
+
+            double total = 0.0;
+
+            // Get references
+            NumberPicker dollars = (NumberPicker) alertView.findViewById(R.id.npDollars);
+            NumberPicker cents = (NumberPicker) alertView.findViewById(R.id.npCents);
+            NumberPicker quantity = (NumberPicker) alertView.findViewById(R.id.npQuantity);
+            TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
+
+            // Setup Number Pickers
+            dollars.setMaxValue(99);
+            dollars.setMinValue(0);
+            dollars.setWrapSelectorWheel(true);
+
+            cents.setMaxValue(99);
+            cents.setMinValue(0);
+            cents.setWrapSelectorWheel(true);
+
+            quantity.setMaxValue(99);
+            quantity.setMinValue(1);
+            quantity.setWrapSelectorWheel(true);
+
+            // Popup total
+            tvTotal.setText(getFormattedValue(total));
+
+            final AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
     private String getFormattedValue(final double value)
     {
         return formatter.format(value);
+    }
+
+    private void handleTaskState(final View view, final Task task)
+    {
+        TextView taskDescription = (TextView) view.findViewById(R.id.task_description);
+
+        task.setCompleted(!task.isCompleted());
+
+        if (task.isCompleted())
+        {
+            taskDescription.setPaintFlags(taskDescription.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        else
+        {
+            taskDescription.setPaintFlags(
+                    taskDescription.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+
+        task.saveEventually();
     }
 }
