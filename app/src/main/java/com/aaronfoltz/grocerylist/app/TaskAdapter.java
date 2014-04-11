@@ -1,7 +1,5 @@
 package com.aaronfoltz.grocerylist.app;
 
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
@@ -9,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.util.List;
 
 public class TaskAdapter extends ArrayAdapter<Task> {
     private Context mContext;
