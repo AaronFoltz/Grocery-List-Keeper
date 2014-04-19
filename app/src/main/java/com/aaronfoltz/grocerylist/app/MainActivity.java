@@ -171,7 +171,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             NumberPicker dollars = (NumberPicker) alertView.findViewById(R.id.npDollars);
             NumberPicker cents = (NumberPicker) alertView.findViewById(R.id.npCents);
             NumberPicker quantity = (NumberPicker) alertView.findViewById(R.id.npQuantity);
-            TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
+            final TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
 
             // Setup Number Pickers
             dollars.setMaxValue(99);
@@ -185,6 +185,34 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             quantity.setMaxValue(99);
             quantity.setMinValue(1);
             quantity.setWrapSelectorWheel(true);
+
+            // Number picker events
+            dollars.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+
+                @Override
+                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
+                {
+                    tvTotal.setText(getFormattedValue(newVal));
+                }
+            });
+
+            cents.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+
+                @Override
+                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
+                {
+
+                }
+            });
+
+            quantity.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+
+                @Override
+                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
+                {
+
+                }
+            });
 
             // Popup total
             tvTotal.setText(getFormattedValue(total));

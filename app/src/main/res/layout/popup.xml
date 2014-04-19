@@ -13,21 +13,10 @@
         <TextView android:layout_width="wrap_content" android:layout_height="130dp"
                   android:textAppearance="?android:attr/textAppearanceMedium" android:text="$" android:id="@+id/textView2"
                   android:textSize="35dp" android:gravity="bottom"/>
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/npDollars" android:minWidth="100dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="130dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="."
-            android:id="@+id/textView"
-            android:textSize="35dp" android:gravity="bottom"/>
-        <NumberPicker
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/npCents" android:minWidth="100dp"/>
+        <EditText android:id="@+id/etPrice" android:layout_width="0dp" android:layout_height="wrap_content"
+                  android:layout_weight="1" android:ems="10" android:inputType="text" android:hint="Enter item price">
+            <requestFocus/>
+        </EditText>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="130dp"
@@ -35,8 +24,10 @@
                 android:text="X "
                 android:id="@+id/textView3" android:gravity="center_vertical" android:paddingLeft="20dp"
                 android:paddingRight="20dp"/>
-        <NumberPicker android:layout_width="wrap_content" android:layout_height="wrap_content"
-                      android:id="@+id/npQuantity" android:minWidth="100dp"/>
+        <EditText android:id="@+id/etQuantity" android:layout_width="0dp" android:layout_height="wrap_content"
+                  android:layout_weight="1" android:ems="10" android:inputType="text" android:hint="1">
+            <requestFocus/>
+        </EditText>
     </LinearLayout>
     <LinearLayout
             android:orientation="horizontal"
@@ -47,10 +38,11 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Total"
-                android:id="@+id/textView4" android:gravity="center"/>
+                android:id="@+id/textView4" android:gravity="center" android:layout_weight="1"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:textAppearance="?android:attr/textAppearanceMedium"
-                  android:id="@+id/tvPopupTotal" android:paddingLeft="20dp" android:gravity="center"/>
+                  android:id="@+id/tvPopupTotal" android:paddingLeft="20dp" android:gravity="center"
+                  android:layout_weight="1" android:layout_gravity="left"/>
     </LinearLayout>
 
 </LinearLayout>
