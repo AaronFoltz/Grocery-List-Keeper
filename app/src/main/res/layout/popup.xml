@@ -14,18 +14,20 @@
                   android:textAppearance="?android:attr/textAppearanceMedium" android:text="$" android:id="@+id/textView2"
                   android:textSize="35dp" android:gravity="bottom"/>
         <EditText android:id="@+id/etPrice" android:layout_width="0dp" android:layout_height="wrap_content"
-                  android:layout_weight="1" android:ems="10" android:inputType="text" android:hint="Enter item price">
+                  android:layout_weight="1" android:ems="10" android:hint="Enter item price"
+                  android:numeric="decimal" android:inputType="numberDecimal">
             <requestFocus/>
         </EditText>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="130dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="X "
+                android:text="X"
                 android:id="@+id/textView3" android:gravity="center_vertical" android:paddingLeft="20dp"
                 android:paddingRight="20dp"/>
         <EditText android:id="@+id/etQuantity" android:layout_width="0dp" android:layout_height="wrap_content"
-                  android:layout_weight="1" android:ems="10" android:inputType="text" android:hint="1">
+                  android:layout_weight="1" android:ems="10" android:hint="1"
+                  android:numeric="integer" android:inputType="number">
             <requestFocus/>
         </EditText>
     </LinearLayout>

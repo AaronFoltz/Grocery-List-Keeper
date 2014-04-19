@@ -5,13 +5,14 @@ import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -168,49 +169,47 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             double total = 0.0;
 
             // Get references
-            NumberPicker dollars = (NumberPicker) alertView.findViewById(R.id.npDollars);
-            NumberPicker cents = (NumberPicker) alertView.findViewById(R.id.npCents);
-            NumberPicker quantity = (NumberPicker) alertView.findViewById(R.id.npQuantity);
+            final EditText etPrice = (EditText) alertView.findViewById(R.id.etPrice);
+            final EditText etQuantity = (EditText) alertView.findViewById(R.id.etQuantity);
             final TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
 
-            // Setup Number Pickers
-            dollars.setMaxValue(99);
-            dollars.setMinValue(0);
-            dollars.setWrapSelectorWheel(true);
-
-            cents.setMaxValue(99);
-            cents.setMinValue(0);
-            cents.setWrapSelectorWheel(true);
-
-            quantity.setMaxValue(99);
-            quantity.setMinValue(1);
-            quantity.setWrapSelectorWheel(true);
-
-            // Number picker events
-            dollars.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            // Popup EditText events
+            etPrice.addTextChangedListener(new TextWatcher()
+            {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
 
                 @Override
-                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
+                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+
+                @Override
+                public void afterTextChanged(Editable editable)
                 {
-                    tvTotal.setText(getFormattedValue(newVal));
+                    if (etPrice.getText() != null)
+                    {
+                        // Text has changed, update the total on the fly
+                        tvTotal.setText(getFormattedValue(getItemTotal(etPrice, etQuantity)));
+                    }
                 }
             });
 
-            cents.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            // Popup EditText events
+            etQuantity.addTextChangedListener(new TextWatcher()
+            {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
 
                 @Override
-                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
-                {
-
-                }
-            });
-
-            quantity.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
 
                 @Override
-                public void onValueChange(final NumberPicker numberPicker, final int oldVal, final int newVal)
+                public void afterTextChanged(Editable editable)
                 {
-
+                    if (etPrice.getText() != null)
+                    {
+                        // Text has changed, update the total on the fly
+                        tvTotal.setText(getFormattedValue(getItemTotal(etPrice, etQuantity)));
+                    }
                 }
             });
 
@@ -220,6 +219,20 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             final AlertDialog alert = builder.create();
             alert.show();
         }
+    }
+
+    private double getItemTotal(EditText etPrice, EditText etQuantity)
+    {
+        double retVal = 0.0;
+        if (etPrice.getText() != null && etQuantity.getText() != null && etPrice.getText()
+                                                                                .length() != 0 && etQuantity.getText()
+                                                                                                            .length() != 0)
+        {
+            retVal = Double.parseDouble(etPrice.getText().toString()) *
+                     Integer.parseInt(etQuantity.getText().toString());
+        }
+
+        return retVal;
     }
 
     private String getFormattedValue(final double value)
