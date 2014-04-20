@@ -177,13 +177,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             etPrice.addTextChangedListener(new TextWatcher()
             {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+                public void beforeTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
+                {
+                }
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+                public void onTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
+                {
+                }
 
                 @Override
-                public void afterTextChanged(Editable editable)
+                public void afterTextChanged(final Editable editable)
                 {
                     if (etPrice.getText() != null)
                     {
@@ -197,13 +201,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             etQuantity.addTextChangedListener(new TextWatcher()
             {
                 @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+                public void beforeTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
+                {
+                }
 
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {}
+                public void onTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
+                {
+                }
 
                 @Override
-                public void afterTextChanged(Editable editable)
+                public void afterTextChanged(final Editable editable)
                 {
                     if (etPrice.getText() != null)
                     {
@@ -221,18 +229,22 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         }
     }
 
-    private double getItemTotal(EditText etPrice, EditText etQuantity)
+    private double getItemTotal(final EditText etPrice, final EditText etQuantity)
     {
-        double retVal = 0.0;
-        if (etPrice.getText() != null && etQuantity.getText() != null && etPrice.getText()
-                                                                                .length() != 0 && etQuantity.getText()
-                                                                                                            .length() != 0)
+        // Default quantity to 1, so they don't have to enter anything (the hint doesn't work as a default value
+        int itemQuantity = 1;
+        if (etQuantity.getText() != null && etQuantity.getText().length() != 0)
         {
-            retVal = Double.parseDouble(etPrice.getText().toString()) *
-                     Integer.parseInt(etQuantity.getText().toString());
+            itemQuantity = Integer.parseInt(etQuantity.getText().toString());
         }
 
-        return retVal;
+        double itemPrice = 0.0;
+        if (etPrice.getText() != null && etPrice.getText().length() != 0)
+        {
+            itemPrice = Double.parseDouble(etPrice.getText().toString());
+        }
+
+        return itemPrice * itemQuantity;
     }
 
     private String getFormattedValue(final double value)
