@@ -24,18 +24,18 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener
 {
+    public static final String APP_ID = "esOZW5wp4y1J8tWnRUXspkGGmLeRFqcuopyM5Qwf";
+    public static final String CLIENT_KEY = "KZ7Bg47x7cpq6GIDDUbfKn1k8Bz2UA6BT7JaMK1b";
+    public static final double DEFAULT_DOUBLE_VAL = 0.0;
+
     private EditText mItemInput;
     private ListView mItemListView;
     private ItemAdapter mItemAdapter;
     private TextView tvSubTotal, tvTax1, tvTax2, tvTotal;
-    private double subTotal = 0.0;
-    private double tax1 = 0.0;
-    private double tax2 = 0.0;
-    private double total = 0.0;
-
-    public static final String APP_ID = "esOZW5wp4y1J8tWnRUXspkGGmLeRFqcuopyM5Qwf";
-    public static final String CLIENT_KEY = "KZ7Bg47x7cpq6GIDDUbfKn1k8Bz2UA6BT7JaMK1b";
-
+    private double subTotal = DEFAULT_DOUBLE_VAL;
+    private double tax1 = DEFAULT_DOUBLE_VAL;
+    private double tax2 = DEFAULT_DOUBLE_VAL;
+    private double total = DEFAULT_DOUBLE_VAL;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState)
@@ -133,22 +133,33 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         if (task.isRetrieved())
         {
             handleItemState(view, task);
+            handleSummaryState(null);
         }
         else
         {
             // Not already completed, show the dialog
             // Show the alert dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            // Setup the view
+            View alertView = getLayoutInflater().inflate(R.layout.popup, null);
+            builder.setView(alertView);
+
+            // Get references
+            final EditText etPrice = (EditText) alertView.findViewById(R.id.etPrice);
+            final EditText etQuantity = (EditText) alertView.findViewById(R.id.etQuantity);
+            final TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
+
+            // Setup the dialog builder
             builder.setTitle("Enter Price")
                    .setCancelable(true)
                    .setPositiveButton("Add", new DialogInterface.OnClickListener()
                    {
-
                        @Override
                        public void onClick(final DialogInterface dialog, final int id)
                        {
-
                            handleItemState(view, task);
+                           handleSummaryState(task);
                        }
                    })
                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -162,30 +173,40 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                        }
                    });
 
-            View alertView = getLayoutInflater().inflate(R.layout.popup, null);
-            builder.setView(alertView);
-
-            double total = 0.0;
-
-            // Get references
-            final EditText etPrice = (EditText) alertView.findViewById(R.id.etPrice);
-            final EditText etQuantity = (EditText) alertView.findViewById(R.id.etQuantity);
-            final TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
+            // Popup EditText events
+            etPrice.addTextChangedListener(new PriceDialogTextWatcher(alertView, task));
 
             // Popup EditText events
-            etPrice.addTextChangedListener(new PriceDialogTextWatcher(etPrice, tvTotal, etQuantity));
-
-            // Popup EditText events
-            etQuantity.addTextChangedListener(new PriceDialogTextWatcher(etPrice, tvTotal, etQuantity));
+            etQuantity.addTextChangedListener(new PriceDialogTextWatcher(alertView, task));
 
             // Popup total
-            tvTotal.setText(GeneralUtils.getFormattedValue(total));
+            tvTotal.setText(GeneralUtils.getFormattedValue(DEFAULT_DOUBLE_VAL));
 
             final AlertDialog alert = builder.create();
             alert.show();
         }
     }
 
+    /**
+     * Handle updates to the summary info:  total, subtotal, etc.
+     *
+     * @param itemTotal the item total that we're adding
+     */
+    private void handleSummaryState(final Item item)
+    {
+        total = total + item.getTotal();
+        subTotal = subTotal + item.getTotal();
+
+        // Update the summary values
+        tvSubTotal.setText(GeneralUtils.getFormattedValue(subTotal));
+        tvTotal.setText(GeneralUtils.getFormattedValue(total));
+    }
+
+    /**
+     * Handle updates to the item state (i.e., the row item).
+     *  @param view the row_item's view
+     * @param item the item object
+     */
     private void handleItemState(final View view, final Item item)
     {
         TextView itemDescription = (TextView) view.findViewById(R.id.item_description);
