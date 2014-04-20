@@ -125,15 +125,15 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     }
 
     @Override
-    public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l)
+    public void onItemClick(final AdapterView<?> adapterView, final View rowView, final int i, final long l)
     {
-        final Item task = mItemAdapter.getItem(i);
+        final Item item = mItemAdapter.getItem(i);
 
         // If already completed, just mark it as not completed
-        if (task.isRetrieved())
+        if (item.isRetrieved())
         {
-            handleItemState(view, task);
-            handleSummaryState(null);
+            handleItemState(rowView, item);
+            handleSummaryState(item);
         }
         else
         {
@@ -158,8 +158,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                        @Override
                        public void onClick(final DialogInterface dialog, final int id)
                        {
-                           handleItemState(view, task);
-                           handleSummaryState(task);
+                           handleItemState(rowView, item);
+                           handleSummaryState(item);
                        }
                    })
                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -174,10 +174,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                    });
 
             // Popup EditText events
-            etPrice.addTextChangedListener(new PriceDialogTextWatcher(alertView, task));
+            etPrice.addTextChangedListener(new PriceDialogTextWatcher(alertView, item));
 
             // Popup EditText events
-            etQuantity.addTextChangedListener(new PriceDialogTextWatcher(alertView, task));
+            etQuantity.addTextChangedListener(new PriceDialogTextWatcher(alertView, item));
 
             // Popup total
             tvTotal.setText(GeneralUtils.getFormattedValue(DEFAULT_DOUBLE_VAL));
@@ -190,7 +190,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     /**
      * Handle updates to the summary info:  total, subtotal, etc.
      *
-     * @param item the item that we're adding
+     * @param item the item object
      */
     private void handleSummaryState(final Item item)
     {
@@ -198,14 +198,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         total = total + itemTotal;
         subTotal = subTotal + itemTotal;
 
-        // Update the summary values
+        // Update the displayed summary values
         tvSubTotal.setText(GeneralUtils.getFormattedValue(subTotal));
         tvTotal.setText(GeneralUtils.getFormattedValue(total));
     }
 
     /**
      * Handle updates to the item state (i.e., the row item).
-     *  @param view the row_item's view
+     * @param view the row_item's view
      * @param item the item object
      */
     private void handleItemState(final View view, final Item item)

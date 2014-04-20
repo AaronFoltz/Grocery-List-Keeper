@@ -9,8 +9,8 @@ import android.widget.TextView;
 class PriceDialogTextWatcher implements TextWatcher
 {
     private final EditText etPrice;
-    private final TextView tvTotal;
     private final EditText etQuantity;
+    private final TextView tvTotal;
     private final Item item;
 
     public PriceDialogTextWatcher(final View alertView, final Item item)
@@ -34,11 +34,14 @@ class PriceDialogTextWatcher implements TextWatcher
     @Override
     public void afterTextChanged(final Editable editable)
     {
-        if (etPrice.getText() != null)
-        {
-            // Text has changed, update the total on the fly
-            tvTotal.setText(GeneralUtils.getFormattedValue(getItemPrice() * getItemQuantity()));
-        }
+        double itemPrice = getItemPrice();
+        int itemQuantity = getItemQuantity();
+        // Text has changed, update the displayed total on the fly
+        tvTotal.setText(GeneralUtils.getFormattedValue(itemPrice * itemQuantity));
+
+        // Update the item's properties
+        item.setPrice(itemPrice);
+        item.setQuantity(itemQuantity);
     }
 
     private double getItemPrice()
