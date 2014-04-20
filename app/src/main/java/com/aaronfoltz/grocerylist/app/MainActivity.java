@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,22 +19,23 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener
 {
-    private EditText mTaskInput;
-    private ListView mListView;
-    private TaskAdapter mAdapter;
+    private EditText mItemInput;
+    private ListView mItemListView;
+    private ItemAdapter mItemAdapter;
     private TextView tvSubTotal, tvTax1, tvTax2, tvTotal;
     private double subTotal = 0.0;
     private double tax1 = 0.0;
     private double tax2 = 0.0;
     private double total = 0.0;
-    private static final NumberFormat formatter = NumberFormat.getCurrencyInstance();
+
+    public static final String APP_ID = "esOZW5wp4y1J8tWnRUXspkGGmLeRFqcuopyM5Qwf";
+    public static final String CLIENT_KEY = "KZ7Bg47x7cpq6GIDDUbfKn1k8Bz2UA6BT7JaMK1b";
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState)
@@ -44,28 +43,28 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Parse.initialize(this, "esOZW5wp4y1J8tWnRUXspkGGmLeRFqcuopyM5Qwf", "KZ7Bg47x7cpq6GIDDUbfKn1k8Bz2UA6BT7JaMK1b");
+        Parse.initialize(this, APP_ID, CLIENT_KEY);
         ParseAnalytics.trackAppOpened(getIntent());
-        ParseObject.registerSubclass(Task.class);
+        ParseObject.registerSubclass(Item.class);
 
         // Get item references
-        mTaskInput = (EditText) findViewById(R.id.task_input);
-        mListView = (ListView) findViewById(R.id.task_list);
+        mItemInput = (EditText) findViewById(R.id.item_input);
+        mItemListView = (ListView) findViewById(R.id.item_list);
         tvSubTotal = (TextView) findViewById(R.id.tvSubtotal);
         tvTax1 = (TextView) findViewById(R.id.tvTax1);
         tvTax2 = (TextView) findViewById(R.id.tvTax2);
         tvTotal = (TextView) findViewById(R.id.tvTotal);
 
         // Default values
-        tvSubTotal.setText(getFormattedValue(subTotal));
-        tvTax1.setText(getFormattedValue(tax1));
-        tvTax2.setText(getFormattedValue(tax2));
-        tvTotal.setText(getFormattedValue(total));
+        tvSubTotal.setText(GeneralUtils.getFormattedValue(subTotal));
+        tvTax1.setText(GeneralUtils.getFormattedValue(tax1));
+        tvTax2.setText(GeneralUtils.getFormattedValue(tax2));
+        tvTotal.setText(GeneralUtils.getFormattedValue(total));
 
-        // Task List View Setup
-        mAdapter = new TaskAdapter(this, new ArrayList<Task>());
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(this);
+        // Item List View Setup
+        mItemAdapter = new ItemAdapter(this, new ArrayList<Item>());
+        mItemListView.setAdapter(mItemAdapter);
+        mItemListView.setOnItemClickListener(this);
 
         updateData();
     }
@@ -94,32 +93,32 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         return super.onOptionsItemSelected(item);
     }
 
-    public void createTask(final View v)
+    public void createItemEntry(final View v)
     {
-        if (mTaskInput.getText() != null && mTaskInput.getText().length() > 0)
+        if (mItemInput.getText() != null && mItemInput.getText().length() > 0)
         {
-            Task t = new Task();
-            t.setDescription(mTaskInput.getText().toString());
-            t.setCompleted(false);
+            Item t = new Item();
+            t.setItemName(mItemInput.getText().toString());
+            t.setRetrieved(false);
             t.saveEventually();
-            mTaskInput.setText("");
-            mAdapter.insert(t, 0);
+            mItemInput.setText("");
+            mItemAdapter.insert(t, 0);
         }
     }
 
     public void updateData()
     {
-        ParseQuery<Task> query = ParseQuery.getQuery(Task.class);
-        query.findInBackground(new FindCallback<Task>()
+        ParseQuery<Item> query = ParseQuery.getQuery(Item.class);
+        query.findInBackground(new FindCallback<Item>()
         {
 
             @Override
-            public void done(final List<Task> tasks, final ParseException e)
+            public void done(final List<Item> items, final ParseException e)
             {
-                if (tasks != null)
+                if (items != null)
                 {
-                    mAdapter.clear();
-                    mAdapter.addAll(tasks);
+                    mItemAdapter.clear();
+                    mItemAdapter.addAll(items);
                 }
             }
         });
@@ -128,12 +127,12 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     @Override
     public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l)
     {
-        final Task task = mAdapter.getItem(i);
+        final Item task = mItemAdapter.getItem(i);
 
         // If already completed, just mark it as not completed
-        if (task.isCompleted())
+        if (task.isRetrieved())
         {
-            handleTaskState(view, task);
+            handleItemState(view, task);
         }
         else
         {
@@ -149,7 +148,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                        public void onClick(final DialogInterface dialog, final int id)
                        {
 
-                           handleTaskState(view, task);
+                           handleItemState(view, task);
                        }
                    })
                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -174,100 +173,35 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             final TextView tvTotal = (TextView) alertView.findViewById(R.id.tvPopupTotal);
 
             // Popup EditText events
-            etPrice.addTextChangedListener(new TextWatcher()
-            {
-                @Override
-                public void beforeTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
-                {
-                }
-
-                @Override
-                public void onTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
-                {
-                }
-
-                @Override
-                public void afterTextChanged(final Editable editable)
-                {
-                    if (etPrice.getText() != null)
-                    {
-                        // Text has changed, update the total on the fly
-                        tvTotal.setText(getFormattedValue(getItemTotal(etPrice, etQuantity)));
-                    }
-                }
-            });
+            etPrice.addTextChangedListener(new PriceDialogTextWatcher(etPrice, tvTotal, etQuantity));
 
             // Popup EditText events
-            etQuantity.addTextChangedListener(new TextWatcher()
-            {
-                @Override
-                public void beforeTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
-                {
-                }
-
-                @Override
-                public void onTextChanged(final CharSequence charSequence, final int i, final int i2, final int i3)
-                {
-                }
-
-                @Override
-                public void afterTextChanged(final Editable editable)
-                {
-                    if (etPrice.getText() != null)
-                    {
-                        // Text has changed, update the total on the fly
-                        tvTotal.setText(getFormattedValue(getItemTotal(etPrice, etQuantity)));
-                    }
-                }
-            });
+            etQuantity.addTextChangedListener(new PriceDialogTextWatcher(etPrice, tvTotal, etQuantity));
 
             // Popup total
-            tvTotal.setText(getFormattedValue(total));
+            tvTotal.setText(GeneralUtils.getFormattedValue(total));
 
             final AlertDialog alert = builder.create();
             alert.show();
         }
     }
 
-    private double getItemTotal(final EditText etPrice, final EditText etQuantity)
+    private void handleItemState(final View view, final Item item)
     {
-        // Default quantity to 1, so they don't have to enter anything (the hint doesn't work as a default value
-        int itemQuantity = 1;
-        if (etQuantity.getText() != null && etQuantity.getText().length() != 0)
+        TextView itemDescription = (TextView) view.findViewById(R.id.item_description);
+
+        item.setRetrieved(!item.isRetrieved());
+
+        if (item.isRetrieved())
         {
-            itemQuantity = Integer.parseInt(etQuantity.getText().toString());
-        }
-
-        double itemPrice = 0.0;
-        if (etPrice.getText() != null && etPrice.getText().length() != 0)
-        {
-            itemPrice = Double.parseDouble(etPrice.getText().toString());
-        }
-
-        return itemPrice * itemQuantity;
-    }
-
-    private String getFormattedValue(final double value)
-    {
-        return formatter.format(value);
-    }
-
-    private void handleTaskState(final View view, final Task task)
-    {
-        TextView taskDescription = (TextView) view.findViewById(R.id.task_description);
-
-        task.setCompleted(!task.isCompleted());
-
-        if (task.isCompleted())
-        {
-            taskDescription.setPaintFlags(taskDescription.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            itemDescription.setPaintFlags(itemDescription.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
         else
         {
-            taskDescription.setPaintFlags(
-                    taskDescription.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            itemDescription.setPaintFlags(
+                    itemDescription.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
-        task.saveEventually();
+        item.saveEventually();
     }
 }
