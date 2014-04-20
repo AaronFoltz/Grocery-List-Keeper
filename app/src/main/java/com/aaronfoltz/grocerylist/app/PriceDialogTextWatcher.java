@@ -36,14 +36,22 @@ class PriceDialogTextWatcher implements TextWatcher
     {
         if (etPrice.getText() != null)
         {
-            double itemTotal = getItemTotal(etPrice, etQuantity);
             // Text has changed, update the total on the fly
-            tvTotal.setText(GeneralUtils.getFormattedValue(itemTotal));
-            item.setTotal(itemTotal);
+            tvTotal.setText(GeneralUtils.getFormattedValue(getItemPrice() * getItemQuantity()));
         }
     }
 
-    private double getItemTotal(final EditText etPrice, final EditText etQuantity)
+    private double getItemPrice()
+    {
+        double itemPrice = 0.0;
+        if (etPrice.getText() != null && etPrice.getText().length() != 0)
+        {
+            itemPrice = Double.parseDouble(etPrice.getText().toString());
+        }
+        return itemPrice;
+    }
+
+    private int getItemQuantity()
     {
         // Default quantity to 1, so they don't have to enter anything (the hint doesn't work as a default value
         int itemQuantity = 1;
@@ -51,13 +59,6 @@ class PriceDialogTextWatcher implements TextWatcher
         {
             itemQuantity = Integer.parseInt(etQuantity.getText().toString());
         }
-
-        double itemPrice = 0.0;
-        if (etPrice.getText() != null && etPrice.getText().length() != 0)
-        {
-            itemPrice = Double.parseDouble(etPrice.getText().toString());
-        }
-
-        return itemPrice * itemQuantity;
+        return itemQuantity;
     }
 }
