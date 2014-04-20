@@ -190,12 +190,13 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     /**
      * Handle updates to the summary info:  total, subtotal, etc.
      *
-     * @param itemTotal the item total that we're adding
+     * @param item the item that we're adding
      */
     private void handleSummaryState(final Item item)
     {
-        total = total + item.getTotal();
-        subTotal = subTotal + item.getTotal();
+        double itemTotal = item.getPrice() * item.getQuantity();
+        total = total + itemTotal;
+        subTotal = subTotal + itemTotal;
 
         // Update the summary values
         tvSubTotal.setText(GeneralUtils.getFormattedValue(subTotal));
